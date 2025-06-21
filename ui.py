@@ -319,16 +319,15 @@ class DownloadTab:
 
     def setup_ui(self):
         """Setup the download tab UI"""
-        # Main scrollable frame
-        self.main_frame = ctk.CTkScrollableFrame(
+        from utils import create_scrollable_frame
+
+        # Create scrollable frame
+        container, self.main_frame = create_scrollable_frame(
             self.parent,
             corner_radius=0,
             fg_color="transparent"
         )
-        self.main_frame.pack(fill="both", expand=True, padx=15, pady=15)
-
-        from utils import bind_scroll_events
-        bind_scroll_events(self.main_frame, self.main_frame)
+        container.pack(fill="both", expand=True, padx=15, pady=15)
 
         # Title
         title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
@@ -964,12 +963,15 @@ class HistoryTab:
 
     def setup_ui(self):
         """Setup history tab UI"""
-        main_frame = ctk.CTkScrollableFrame(self.parent)
-        main_frame.pack(fill="both", expand=True, padx=15, pady=15)
+        from utils import create_scrollable_frame
 
-        # Header
+        # Main container
+        main_container = ctk.CTkFrame(self.parent, fg_color="transparent")
+        main_container.pack(fill="both", expand=True, padx=15, pady=15)
+
+        # Header (non-scrollable)
         header_frame = ctk.CTkFrame(
-            main_frame,
+            main_container,
             corner_radius=20,
             border_width=2,
             border_color=config.UI_COLORS['border']
@@ -1003,12 +1005,13 @@ class HistoryTab:
         )
         clear_btn.pack(side="right")
 
-        # History list
-        self.history_scrollable = ctk.CTkScrollableFrame(main_frame, height=500, corner_radius=20)
-        self.history_scrollable.pack(fill="both", expand=True)
-
-        from utils import bind_scroll_events
-        bind_scroll_events(self.history_scrollable, self.history_scrollable)
+        # Scrollable history list
+        history_container, self.history_scrollable = create_scrollable_frame(
+            main_container,
+            height=500,
+            corner_radius=20
+        )
+        history_container.pack(fill="both", expand=True)
 
     def refresh_history(self):
         """Refresh history display"""
@@ -1087,11 +1090,11 @@ class SettingsTab:
 
     def setup_ui(self):
         """Setup settings tab UI"""
-        main_frame = ctk.CTkScrollableFrame(self.parent)
-        main_frame.pack(fill="both", expand=True, padx=15, pady=15)
+        from utils import create_scrollable_frame
 
-        from utils import bind_scroll_events
-        bind_scroll_events(main_frame, main_frame)
+        # Create scrollable frame
+        container, main_frame = create_scrollable_frame(self.parent)
+        container.pack(fill="both", expand=True, padx=15, pady=15)
 
         # Title
         title_frame = ctk.CTkFrame(

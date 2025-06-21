@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
+import customtkinter as ctk 
 import config
 
 class SettingsManager:
@@ -442,43 +443,58 @@ class GitHubUpdater:
             print(f"Download failed: {e}")
             return False
 
-def bind_scroll_events(widget, scrollable_frame):
-    """Bind mouse wheel and trackpad events to scrollable frame"""
 
+def create_scrollable_frame(parent, **kwargs):
+    """Create a frame with manual scrollbar for better cross-platform support"""
+    import tkinter as tk
+
+    # Main container
+    container = ctk.CTkFrame(parent, **kwargs)
+
+    # Simple background color based on appearance mode
+    if ctk.get_appearance_mode() == "Dark":
+        bg_color = "#212121"
+    else:
+        bg_color = "#f0f0f0"
+
+    # Canvas for scrolling
+    canvas = tk.Canvas(
+        container,
+        highlightthickness=0,
+        bg=bg_color,
+        bd=0
+    )
+
+    # Scrollbar
+    scrollbar = ctk.CTkScrollbar(container, command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Scrollable frame inside canvas - use same bg color instead of transparent
+    scrollable_frame = ctk.CTkFrame(canvas, fg_color=bg_color)
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    # Add frame to canvas
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+    # Pack elements
+    canvas.pack(side="left", fill="both", expand=True, padx=(0, 5))
+    scrollbar.pack(side="right", fill="y")
+
+    # Bind mouse wheel events
     def on_mousewheel(event):
-        # Different scroll behavior for different platforms
-        if sys.platform == "darwin":  # macOS
-            # Trackpad gives smaller delta values
-            scrollable_frame._parent_canvas.yview_scroll(int(-1 * event.delta), "units")
-        elif sys.platform == "win32":  # Windows
-            # Mouse wheel gives larger delta values
-            scrollable_frame._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-        else:  # Linux
-            if event.num == 4:
-                scrollable_frame._parent_canvas.yview_scroll(-1, "units")
-            elif event.num == 5:
-                scrollable_frame._parent_canvas.yview_scroll(1, "units")
+        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-    def bind_to_mousewheel(event):
-        if sys.platform == "darwin":
-            widget.bind_all("<MouseWheel>", on_mousewheel)
-            widget.bind_all("<Shift-MouseWheel>", on_mousewheel)
-        elif sys.platform == "win32":
-            widget.bind_all("<MouseWheel>", on_mousewheel)
-        else:
-            widget.bind_all("<Button-4>", on_mousewheel)
-            widget.bind_all("<Button-5>", on_mousewheel)
+    def bind_mousewheel(event):
+        canvas.bind_all("<MouseWheel>", on_mousewheel)
 
-    def unbind_from_mousewheel(event):
-        if sys.platform == "darwin":
-            widget.unbind_all("<MouseWheel>")
-            widget.unbind_all("<Shift-MouseWheel>")
-        elif sys.platform == "win32":
-            widget.unbind_all("<MouseWheel>")
-        else:
-            widget.unbind_all("<Button-4>")
-            widget.unbind_all("<Button-5>")
+    def unbind_mousewheel(event):
+        canvas.unbind_all("<MouseWheel>")
 
-    # Bind events
-    widget.bind('<Enter>', bind_to_mousewheel)
-    widget.bind('<Leave>', unbind_from_mousewheel)
+    canvas.bind('<Enter>', bind_mousewheel)
+    canvas.bind('<Leave>', unbind_mousewheel)
+
+    # Return both container and scrollable frame
+    return container, scrollable_frame
