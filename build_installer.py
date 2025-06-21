@@ -1,42 +1,4 @@
-def create_executable():
-    """Create standalone executable with PyInstaller"""
-    print("🔨 Building executable with PyInstaller...")
-
-    # Find CustomTkinter installation path
-    try:
-        import customtkinter
-        ctk_path = os.path.dirname(customtkinter.__file__)
-        print(f"📁 CustomTkinter path: {ctk_path}")
-    except ImportError:
-        print("❌ CustomTkinter not found!")
-        return False
-
-    # Set output to desktop
-    desktop_build = get_desktop_path()
-    dist_path = desktop_build / "dist"
-    build_path = desktop_build / "build"
-
-    # PyInstaller command with CustomTkinter assets
-    cmd = [
-        'pyinstaller',
-        '--onefile',
-        '--windowed',
-        '--name', 'SHTxd Clip',
-        '--distpath', str(dist_path),
-        '--workpath', str(build_path),
-        '--specpath', str(build_path),
-        '--hidden-import', 'customtkinter',
-        '--hidden-import', 'requests',
-        '--hidden-import', 'PIL',
-        '--hidden-import', 'packaging',
-        # Add CustomTkinter assets
-        '--add-data', f'{ctk_path};customtkinter/',
-    ]
-
-    # Add FFmpeg if it exists
-    if os.path.exists('ffmpeg.exe'):  # !/usr/bin/env python3
-
-
+#!/usr/bin/env python3
 """
 Build script for SHTxd Clip installer
 Creates a standalone executable and NSIS installer
@@ -79,13 +41,6 @@ def download_ffmpeg():
     """Download FFmpeg for bundling"""
     print("📥 Downloading FFmpeg...")
 
-    # FFmpeg download URLs
-    ffmpeg_urls = {
-        'windows': 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip',
-        'macos': 'https://evermeet.cx/ffmpeg/getrelease/zip',
-        'linux': 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'
-    }
-
     # For now, we'll assume Windows. You can extend this for other platforms
     if sys.platform == 'win32':
         print("⏭️  Please manually download FFmpeg from:")
@@ -118,6 +73,9 @@ def create_executable():
     dist_path = desktop_build / "dist"
     build_path = desktop_build / "build"
 
+    # Get current project directory
+    project_dir = os.getcwd()
+
     # PyInstaller command with CustomTkinter assets
     cmd = [
         'pyinstaller',
@@ -136,14 +94,14 @@ def create_executable():
     ]
 
     # Add FFmpeg if it exists
-    if os.path.exists('ffmpeg.exe'):
-        cmd.extend(['--add-binary', 'ffmpeg.exe;.'])
+    ffmpeg_path = os.path.join(project_dir, 'ffmpeg.exe')
+    if os.path.exists(ffmpeg_path):
+        cmd.extend(['--add-binary', f'{ffmpeg_path};.'])
         print("✅ Including FFmpeg")
     else:
         print("⚠️ FFmpeg not found - skipping")
 
-    # Add icon if it exists (use absolute path)
-    project_dir = os.getcwd()  # Current project directory
+    # Add icon if it exists (use absolute path from project directory)
     icon_path = os.path.join(project_dir, 'app_icon.ico')
     if os.path.exists(icon_path):
         cmd.extend(['--icon', icon_path])
@@ -151,8 +109,9 @@ def create_executable():
     else:
         print("⚠️ app_icon.ico not found - building without icon")
 
-    # Add the main script
-    cmd.append('main.py')
+    # Add the main script (use absolute path)
+    main_script = os.path.join(project_dir, 'main.py')
+    cmd.append(main_script)
 
     print(f"🔧 PyInstaller command: {' '.join(cmd[:8])}...")
 
@@ -171,6 +130,8 @@ def create_executable():
 def create_nsis_script():
     """Create NSIS installer script"""
     print("📝 Creating NSIS installer script...")
+
+    desktop_build = get_desktop_path()
 
     nsis_script = f'''
 ; SHTxd Clip Installer Script
@@ -192,8 +153,6 @@ RequestExecutionLevel admin
 ; Modern UI
 !include "MUI2.nsh"
 !define MUI_ABORTWARNING
-!define MUI_ICON "app_icon.ico"
-!define MUI_UNICON "app_icon.ico"
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
@@ -278,10 +237,11 @@ done:
 FunctionEnd
 '''
 
-    with open('installer.nsi', 'w') as f:
+    nsis_file = desktop_build / 'installer.nsi'
+    with open(nsis_file, 'w') as f:
         f.write(nsis_script)
 
-    print("✅ NSIS script created!")
+    print(f"✅ NSIS script created: {nsis_file}")
     return True
 
 
@@ -341,10 +301,6 @@ def build_installer():
     if not nsis_exe:
         print("❌ NSIS not found! Please install NSIS from https://nsis.sourceforge.io/Download")
         return False
-
-    # Copy NSIS script to desktop folder
-    nsis_script_path = desktop_build / 'installer.nsi'
-    shutil.copy('installer.nsi', nsis_script_path)
 
     # Build installer (change to desktop directory)
     original_dir = os.getcwd()
