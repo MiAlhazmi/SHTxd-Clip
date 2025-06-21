@@ -164,7 +164,8 @@ class DownloadEngine:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=config.TIMEOUTS['video_info']
+                timeout=config.TIMEOUTS['video_info'],
+                creationflags=subprocess.CREATE_NO_WINDOW  # ADD THIS
             )
 
             if result.returncode == 0:
@@ -195,7 +196,8 @@ class DownloadEngine:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=config.TIMEOUTS['playlist_info']
+                timeout=config.TIMEOUTS['playlist_info'],
+                creationflags = subprocess.CREATE_NO_WINDOW
             )
 
             if result.returncode == 0:
@@ -334,7 +336,8 @@ class DownloadEngine:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
-                bufsize=1
+                bufsize=1,
+                creationflags = subprocess.CREATE_NO_WINDOW
             )
 
             # Process output
