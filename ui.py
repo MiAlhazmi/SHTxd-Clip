@@ -1485,6 +1485,9 @@ class YouTubeDownloaderUI:
         # Initialize core with update check
         self.initialize_core()
 
+        # Show setup dialog if needed (ADD THIS at the very end)
+        self.root.after(1000, self.check_setup)
+
 
 
     def check_setup(self):
