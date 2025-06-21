@@ -1222,6 +1222,7 @@ class SettingsTab:
         )
         label.pack(side="left")
 
+        # yt-dlp update button (existing)
         update_btn = ctk.CTkButton(
             update_frame,
             text="🔄 Update yt-dlp",
@@ -1233,7 +1234,54 @@ class SettingsTab:
             fg_color=config.UI_COLORS['success'],
             hover_color=["#388E3C", "#2E7D32"]
         )
-        update_btn.pack(anchor="w", padx=20, pady=(0, 20))
+        update_btn.pack(anchor="w", padx=20, pady=(0, 10))
+
+        # NEW: App update button
+        app_update_btn = ctk.CTkButton(
+            update_frame,
+            text="🔄 Check for App Updates",
+            command=self.check_app_updates,  # Now this will work!
+            width=200,
+            height=40,
+            corner_radius=15,
+            font=ctk.CTkFont(**config.FONTS['text'], weight="bold"),
+            fg_color=config.UI_COLORS['primary'],
+            hover_color=["#1976D2", "#1565C0"]
+        )
+        app_update_btn.pack(anchor="w", padx=20, pady=(0, 20))
+
+    def check_app_updates(self):
+        """Check for app updates"""
+
+        def update_worker():
+            update_info = self.core.check_app_updates()
+            def show_result():
+                if update_info.get('update_available'):
+                    self.show_update_dialog(update_info)
+                elif update_info.get('error'):
+                    messagebox.showerror("Update Check Failed",
+                                         f"Could not check for updates:\n{update_info['error']}")
+                else:
+                    messagebox.showinfo("Updates", "You're running the latest version!")
+
+            self.parent.after(0, show_result)
+
+        threading.Thread(target=update_worker, daemon=True).start()
+
+    def show_update_dialog(self, update_info):
+        """Show update available dialog"""
+        version = update_info['latest_version']
+        release_name = update_info.get('release_name', f'Version {version}')
+
+        message = f"🎉 {release_name} is available!\n\n"
+        message += f"Current version: {config.APP_VERSION}\n"
+        message += f"Latest version: {version}\n\n"
+        message += "Would you like to download it from GitHub?"
+
+        if messagebox.askyesno("Update Available", message):
+            # Open GitHub releases page in browser
+            import webbrowser
+            webbrowser.open(f"https://github.com/{config.GITHUB_REPO}/releases/latest")
 
     def change_theme(self, theme: str):
         """Change application theme"""

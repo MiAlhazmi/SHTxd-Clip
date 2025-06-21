@@ -9,8 +9,13 @@ import re
 # Application Info
 APP_NAME = "SHTxd Clip"
 APP_VERSION = "1.0.0"
-GITHUB_REPO = "mialhazmi/shtxd-clip"  # Your repo
+
+# GitHub Integration
+GITHUB_REPO = "MiAlhazmi/SHTxd-Clip"
 UPDATE_CHECK_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
+ENABLE_AUTO_UPDATES = True
+UPDATE_CHECK_INTERVAL = 24 * 60 * 60  # Check daily (in seconds)
+
 APP_AUTHOR = "ShortaXD"
 
 # Window Configuration
@@ -22,6 +27,10 @@ HOME_DIR = Path.home()
 SETTINGS_FILE = HOME_DIR / ".yt_downloader_settings.json"
 HISTORY_FILE = HOME_DIR / ".yt_downloader_history.json"
 DEFAULT_DOWNLOAD_PATH = HOME_DIR / "Downloads"
+
+# Update settings
+AUTO_CHECK_UPDATES_ON_STARTUP = True
+DOWNLOAD_UPDATES_FOLDER = HOME_DIR / "Downloads" / "SHTxd-Clip-Updates"
 
 # Download Configuration
 MAX_HISTORY_ENTRIES = 50

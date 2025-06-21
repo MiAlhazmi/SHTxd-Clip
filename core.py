@@ -10,7 +10,8 @@ import time
 from typing import Dict, List, Optional, Callable, Any
 from pathlib import Path
 import config
-from utils import URLValidator, ProgressParser, FileManager, Logger
+from utils import URLValidator, ProgressParser, FileManager, Logger, GitHubUpdater
+
 
 class VideoInfo:
     """Container for video information"""
@@ -430,20 +431,20 @@ class DownloadEngine:
         return self.is_downloading
 
 class UpdateChecker:
-    """Checks for yt-dlp updates"""
-    
+    """Checks for yt-dlp updates and app updates"""
+
     def __init__(self):
         self.callbacks: Dict[str, Callable] = {}
-    
+
     def set_callbacks(self, callbacks: Dict[str, Callable]):
         """Set callback functions"""
         self.callbacks = callbacks
-    
+
     def _log(self, message: str):
         """Send log message"""
         if 'on_log' in self.callbacks:
             self.callbacks['on_log'](message)
-    
+
     def check_version(self) -> Optional[str]:
         """Get current yt-dlp version"""
         try:
@@ -453,7 +454,7 @@ class UpdateChecker:
                 text=True,
                 timeout=config.TIMEOUTS['update_check']
             )
-            
+
             if result.returncode == 0:
                 version = result.stdout.strip()
                 self._log(f"yt-dlp version: {version}")
@@ -462,19 +463,19 @@ class UpdateChecker:
         except Exception as e:
             self._log(f"Could not check yt-dlp version: {e}")
             return None
-    
+
     def update_ytdlp(self) -> bool:
         """Update yt-dlp to latest version"""
         try:
             self._log("🔄 Checking for yt-dlp updates...")
-            
+
             result = subprocess.run(
                 ['yt-dlp', '-U'],
                 capture_output=True,
                 text=True,
                 timeout=config.TIMEOUTS['update_install']
             )
-            
+
             if result.returncode == 0:
                 if "Updated" in result.stdout:
                     self._log("✅ yt-dlp updated to latest version")
@@ -488,7 +489,7 @@ class UpdateChecker:
             else:
                 self._log(f"❌ Update failed: {result.stderr}")
                 return False
-        
+
         except subprocess.TimeoutExpired:
             self._log("❌ Update timed out")
             return False
@@ -496,9 +497,34 @@ class UpdateChecker:
             self._log(f"❌ Error updating yt-dlp: {e}")
             return False
 
+    def check_app_updates(self) -> Dict[str, Any]:
+        """Check for app updates on GitHub"""
+        from utils import GitHubUpdater
+
+        self._log("🔍 Checking for app updates on GitHub...")
+
+        try:
+            github_updater = GitHubUpdater()
+            update_info = github_updater.check_for_updates()
+
+            if update_info.get('update_available'):
+                version = update_info['latest_version']
+                self._log(f"✨ New version available: v{version}")
+                return update_info
+            elif update_info.get('error'):
+                self._log(f"❌ Update check failed: {update_info['error']}")
+                return update_info
+            else:
+                self._log("✅ App is up to date")
+                return update_info
+
+        except Exception as e:
+            self._log(f"❌ Error checking for updates: {e}")
+            return {'update_available': False, 'error': str(e)}
+
 class YouTubeDownloaderCore:
     """Main core class that coordinates all functionality"""
-    
+
     def __init__(self):
         self.download_engine = DownloadEngine()
         self.update_checker = UpdateChecker()
@@ -545,3 +571,9 @@ class YouTubeDownloaderCore:
     def is_playlist_url(self, url: str) -> bool:
         """Check if URL is playlist"""
         return URLValidator.is_playlist_url(url)
+
+    # ADD THIS METHOD:
+    def check_app_updates(self) -> Dict[str, Any]:
+        """Check for app updates"""
+        return self.update_checker.check_app_updates()
+

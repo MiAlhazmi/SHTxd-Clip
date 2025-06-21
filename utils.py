@@ -366,3 +366,78 @@ def truncate_text(text: str, max_length: int = 60) -> str:
         return text
     
     return text[:max_length - 3] + "..."
+
+
+class GitHubUpdater:
+    """Handles checking and downloading updates from GitHub releases"""
+
+    def __init__(self):
+        self.repo = config.GITHUB_REPO
+        self.api_url = config.UPDATE_CHECK_URL
+        self.current_version = config.APP_VERSION
+
+    def check_for_updates(self) -> Dict[str, Any]:
+        """Check GitHub for latest release"""
+        try:
+            import requests
+            response = requests.get(self.api_url, timeout=10)
+
+            if response.status_code == 200:
+                release_data = response.json()
+                latest_version = release_data['tag_name'].lstrip('v')
+
+                if self.is_newer_version(latest_version):
+                    return {
+                        'update_available': True,
+                        'latest_version': latest_version,
+                        'download_url': self.get_installer_url(release_data),
+                        'release_notes': release_data.get('body', ''),
+                        'release_date': release_data.get('published_at', ''),
+                        'release_name': release_data.get('name', f'Version {latest_version}')
+                    }
+
+            return {'update_available': False}
+
+        except Exception as e:
+            return {'update_available': False, 'error': str(e)}
+
+    def is_newer_version(self, latest_version: str) -> bool:
+        """Compare version numbers (simple comparison)"""
+        try:
+            # Remove 'v' prefix if present and split
+            current = [int(x) for x in self.current_version.lstrip('v').split('.')]
+            latest = [int(x) for x in latest_version.lstrip('v').split('.')]
+
+            # Pad with zeros if lengths don't match
+            max_len = max(len(current), len(latest))
+            current.extend([0] * (max_len - len(current)))
+            latest.extend([0] * (max_len - len(latest)))
+
+            return latest > current
+        except:
+            return False
+
+    def get_installer_url(self, release_data: Dict) -> Optional[str]:
+        """Find the installer download URL from release assets"""
+        for asset in release_data.get('assets', []):
+            name = asset['name'].lower()
+            # Look for Windows installer or portable version
+            if name.endswith('.exe') or 'setup' in name or 'installer' in name:
+                return asset['browser_download_url']
+        return None
+
+    def download_update(self, download_url: str, save_path: str) -> bool:
+        """Download update file"""
+        try:
+            import requests
+            response = requests.get(download_url, stream=True)
+            response.raise_for_status()
+
+            with open(save_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            return True
+        except Exception as e:
+            print(f"Download failed: {e}")
+            return False
