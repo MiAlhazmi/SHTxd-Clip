@@ -1486,7 +1486,7 @@ class YouTubeDownloaderUI:
         self.initialize_core()
 
         # Show setup dialog if needed (ADD THIS at the very end)
-        self.root.after(1000, self.check_setup)
+        self.root.after(300, self.check_setup)
 
 
 
@@ -1538,10 +1538,7 @@ class YouTubeDownloaderUI:
     def initialize_core(self):
         """Initialize core with startup tasks"""
         def startup_worker():
-            # Auto-update yt-dlp first
-            self.core.update_checker.auto_update_ytdlp_on_startup()
-
-            # Check yt-dlp version
+            # Check yt-dlp version (but don't auto-update)
             self.core.check_ytdlp_version()
 
             # Log startup message
