@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Any, Callable
 import config
 from utils import SettingsManager, HistoryManager, ThemeManager, FileManager, Logger, truncate_text
 from core import YouTubeDownloaderCore, DownloadOptions, VideoInfo, PlaylistInfo
+from setup_assistant import SetupAssistant, SetupDialog
 
 class VideoPreviewWidget:
     """Widget for displaying video preview information"""
@@ -1467,6 +1468,7 @@ class YouTubeDownloaderUI:
         self.core = YouTubeDownloaderCore()
         self.settings_manager = SettingsManager()
         self.history_manager = HistoryManager()
+        self.setup_assistant = SetupAssistant()
 
         # Setup core callbacks
         self.setup_core_callbacks()
@@ -1482,6 +1484,14 @@ class YouTubeDownloaderUI:
 
         # Initialize core with update check
         self.initialize_core()
+
+
+
+    def check_setup(self):
+        """Check if setup assistant should be shown"""
+        if self.setup_assistant.should_show_setup():
+            setup_dialog = SetupDialog(self.root, self.setup_assistant)
+            setup_dialog.show()
 
     def setup_main_window(self):
         """Setup main application window"""
