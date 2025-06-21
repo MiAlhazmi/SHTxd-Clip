@@ -1,4 +1,42 @@
-#!/usr/bin/env python3
+def create_executable():
+    """Create standalone executable with PyInstaller"""
+    print("🔨 Building executable with PyInstaller...")
+
+    # Find CustomTkinter installation path
+    try:
+        import customtkinter
+        ctk_path = os.path.dirname(customtkinter.__file__)
+        print(f"📁 CustomTkinter path: {ctk_path}")
+    except ImportError:
+        print("❌ CustomTkinter not found!")
+        return False
+
+    # Set output to desktop
+    desktop_build = get_desktop_path()
+    dist_path = desktop_build / "dist"
+    build_path = desktop_build / "build"
+
+    # PyInstaller command with CustomTkinter assets
+    cmd = [
+        'pyinstaller',
+        '--onefile',
+        '--windowed',
+        '--name', 'SHTxd Clip',
+        '--distpath', str(dist_path),
+        '--workpath', str(build_path),
+        '--specpath', str(build_path),
+        '--hidden-import', 'customtkinter',
+        '--hidden-import', 'requests',
+        '--hidden-import', 'PIL',
+        '--hidden-import', 'packaging',
+        # Add CustomTkinter assets
+        '--add-data', f'{ctk_path};customtkinter/',
+    ]
+
+    # Add FFmpeg if it exists
+    if os.path.exists('ffmpeg.exe'):  # !/usr/bin/env python3
+
+
 """
 Build script for SHTxd Clip installer
 Creates a standalone executable and NSIS installer
@@ -100,13 +138,23 @@ def create_executable():
     # Add FFmpeg if it exists
     if os.path.exists('ffmpeg.exe'):
         cmd.extend(['--add-binary', 'ffmpeg.exe;.'])
+        print("✅ Including FFmpeg")
+    else:
+        print("⚠️ FFmpeg not found - skipping")
 
-    # Add icon if it exists
-    if os.path.exists('app_icon.ico'):
-        cmd.extend(['--icon', 'app_icon.ico'])
+    # Add icon if it exists (use absolute path)
+    project_dir = os.getcwd()  # Current project directory
+    icon_path = os.path.join(project_dir, 'app_icon.ico')
+    if os.path.exists(icon_path):
+        cmd.extend(['--icon', icon_path])
+        print(f"✅ Including icon: {icon_path}")
+    else:
+        print("⚠️ app_icon.ico not found - building without icon")
 
     # Add the main script
     cmd.append('main.py')
+
+    print(f"🔧 PyInstaller command: {' '.join(cmd[:8])}...")
 
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
