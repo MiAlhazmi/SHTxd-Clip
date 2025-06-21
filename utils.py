@@ -160,7 +160,8 @@ class DependencyChecker:
             check_cmd = 'where' if sys.platform == 'win32' else 'which'
             result = subprocess.run([check_cmd, command], 
                                    capture_output=True, 
-                                   text=True)
+                                   text=True,
+                                    creationflags=subprocess.CREATE_NO_WINDOW)
             return result.returncode == 0
         except Exception:
             return False

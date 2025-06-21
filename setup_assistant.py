@@ -65,7 +65,8 @@ class SetupAssistant:
                         [cmd, '--version'], 
                         capture_output=True, 
                         text=True, 
-                        timeout=5
+                        timeout=5,
+                        creationflags=subprocess.CREATE_NO_WINDOW
                     )
                     if version_result.returncode == 0:
                         result['python_installed'] = True
@@ -86,7 +87,8 @@ class SetupAssistant:
                             [cmd, '--version'], 
                             capture_output=True, 
                             text=True, 
-                            timeout=5
+                            timeout=5,
+                            creationflags=subprocess.CREATE_NO_WINDOW
                         )
                         if pip_result.returncode == 0:
                             result['pip_installed'] = True
@@ -114,7 +116,8 @@ class SetupAssistant:
                     ['yt-dlp', '--version'], 
                     capture_output=True, 
                     text=True, 
-                    timeout=10
+                    timeout=10,
+                    creationflags=subprocess.CREATE_NO_WINDOW
                 )
                 if version_result.returncode == 0:
                     result['ytdlp_installed'] = True
@@ -127,7 +130,8 @@ class SetupAssistant:
                             ['yt-dlp', '--simulate', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'], 
                             capture_output=True, 
                             text=True, 
-                            timeout=15
+                            timeout=15,
+                            creationflags=subprocess.CREATE_NO_WINDOW
                         )
                         result['is_latest'] = test_result.returncode == 0
                     except:
@@ -418,7 +422,7 @@ class SetupDialog:
     def open_powershell(self):
         """Open PowerShell"""
         try:
-            subprocess.run(['powershell'], shell=True)
+            subprocess.run(['powershell'], shell=True, creationflags=subprocess.CREATE_NO_WINDOW)
         except Exception as e:
             messagebox.showerror("Error", f"Could not open PowerShell: {e}")
     

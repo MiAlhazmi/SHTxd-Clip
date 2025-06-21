@@ -109,7 +109,7 @@ def create_executable():
     print("🔄 Updating yt-dlp before build...")
     try:
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'yt-dlp'],
-                       check=True, capture_output=True)
+                       check=True, capture_output=True, creationflags=subprocess.CREATE_NO_WINDOW)
         print("✅ yt-dlp updated to latest version")
     except subprocess.CalledProcessError:
         print("⚠️ Failed to update yt-dlp, continuing with current version")
@@ -188,7 +188,7 @@ def create_executable():
     print(f"🔧 Building with latest yt-dlp bundled...")
 
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         print("✅ Executable created successfully!")
         print(f"📁 Output location: {dist_path}")
         return True
@@ -379,7 +379,7 @@ def build_installer():
     try:
         os.chdir(desktop_build)
         result = subprocess.run([nsis_exe, 'installer.nsi'],
-                                check=True, capture_output=True, text=True)
+                                check=True, capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         print("✅ NSIS installer created successfully!")
         installer_name = f"SHTxd-Clip-Setup-v{config.APP_VERSION}.exe"
         print(f"📦 Installer: {desktop_build / installer_name}")
