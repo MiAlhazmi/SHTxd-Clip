@@ -441,3 +441,44 @@ class GitHubUpdater:
         except Exception as e:
             print(f"Download failed: {e}")
             return False
+
+def bind_scroll_events(widget, scrollable_frame):
+    """Bind mouse wheel and trackpad events to scrollable frame"""
+
+    def on_mousewheel(event):
+        # Different scroll behavior for different platforms
+        if sys.platform == "darwin":  # macOS
+            # Trackpad gives smaller delta values
+            scrollable_frame._parent_canvas.yview_scroll(int(-1 * event.delta), "units")
+        elif sys.platform == "win32":  # Windows
+            # Mouse wheel gives larger delta values
+            scrollable_frame._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        else:  # Linux
+            if event.num == 4:
+                scrollable_frame._parent_canvas.yview_scroll(-1, "units")
+            elif event.num == 5:
+                scrollable_frame._parent_canvas.yview_scroll(1, "units")
+
+    def bind_to_mousewheel(event):
+        if sys.platform == "darwin":
+            widget.bind_all("<MouseWheel>", on_mousewheel)
+            widget.bind_all("<Shift-MouseWheel>", on_mousewheel)
+        elif sys.platform == "win32":
+            widget.bind_all("<MouseWheel>", on_mousewheel)
+        else:
+            widget.bind_all("<Button-4>", on_mousewheel)
+            widget.bind_all("<Button-5>", on_mousewheel)
+
+    def unbind_from_mousewheel(event):
+        if sys.platform == "darwin":
+            widget.unbind_all("<MouseWheel>")
+            widget.unbind_all("<Shift-MouseWheel>")
+        elif sys.platform == "win32":
+            widget.unbind_all("<MouseWheel>")
+        else:
+            widget.unbind_all("<Button-4>")
+            widget.unbind_all("<Button-5>")
+
+    # Bind events
+    widget.bind('<Enter>', bind_to_mousewheel)
+    widget.bind('<Leave>', unbind_from_mousewheel)

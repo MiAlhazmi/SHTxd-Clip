@@ -327,6 +327,9 @@ class DownloadTab:
         )
         self.main_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
+        from utils import bind_scroll_events
+        bind_scroll_events(self.main_frame, self.main_frame)
+
         # Title
         title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         title_frame.pack(pady=(0, 25))
@@ -1004,6 +1007,9 @@ class HistoryTab:
         self.history_scrollable = ctk.CTkScrollableFrame(main_frame, height=500, corner_radius=20)
         self.history_scrollable.pack(fill="both", expand=True)
 
+        from utils import bind_scroll_events
+        bind_scroll_events(self.history_scrollable, self.history_scrollable)
+
     def refresh_history(self):
         """Refresh history display"""
         # Clear existing widgets
@@ -1083,6 +1089,9 @@ class SettingsTab:
         """Setup settings tab UI"""
         main_frame = ctk.CTkScrollableFrame(self.parent)
         main_frame.pack(fill="both", expand=True, padx=15, pady=15)
+
+        from utils import bind_scroll_events
+        bind_scroll_events(main_frame, main_frame)
 
         # Title
         title_frame = ctk.CTkFrame(
