@@ -327,11 +327,11 @@ class DownloadTab:
             corner_radius=0,
             fg_color="transparent"
         )
-        container.pack(fill="both", expand=True, padx=15, pady=15)
+        container.pack(fill="both", expand=True, padx=3, pady=3)
 
-        # Title
+        # 1. Title (Full Width)
         title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        title_frame.pack(pady=(0, 25))
+        title_frame.pack(fill="x", pady=(0, 25))
 
         title_label = ctk.CTkLabel(
             title_frame,
@@ -339,7 +339,7 @@ class DownloadTab:
             font=ctk.CTkFont(**config.FONTS['title']),
             text_color=config.UI_COLORS['primary']
         )
-        title_label.pack()
+        title_label.pack(pady=(10, 0))
 
         subtitle_label = ctk.CTkLabel(
             title_frame,
@@ -349,25 +349,62 @@ class DownloadTab:
         )
         subtitle_label.pack(pady=(5, 0))
 
-        # URL Input Section
+        # 2. URL Input Section (Full Width)
         self.setup_url_section()
 
-        # Quality Selection
-        self.setup_quality_section()
+        # 3. Side-by-Side Section
+        middle_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        middle_container.pack(fill="x", pady=(0, 20), padx=20)
+        middle_container.grid_columnconfigure(0, weight=1)
+        middle_container.grid_columnconfigure(1, weight=1)
+
+        # Left: Quality Selection
+        quality_frame = ctk.CTkFrame(
+            middle_container,
+            corner_radius=20,
+            border_width=2,
+            border_color=config.UI_COLORS['border']
+        )
+        quality_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+
+        # Quality header
+        quality_header = ctk.CTkFrame(quality_frame, fg_color="transparent")
+        quality_header.pack(fill="x", padx=20, pady=(20, 15))
+
+        quality_icon = ctk.CTkLabel(quality_header, text="⚙️", font=ctk.CTkFont(size=20))
+        quality_icon.pack(side="left", padx=(0, 8))
+
+        quality_label = ctk.CTkLabel(
+            quality_header,
+            text="Download Quality",
+            font=ctk.CTkFont(**config.FONTS['section_header'])
+        )
+        quality_label.pack(side="left")
+
+        # Quality options
+        quality_options_frame = ctk.CTkFrame(quality_frame, fg_color="transparent")
+        quality_options_frame.pack(fill="x", padx=20, pady=(0, 20))
+
+        for option in config.QUALITY_OPTIONS:
+            self.create_quality_option(quality_options_frame, option)
+
+        # Right: Advanced Options + Download Location
+        right_container = ctk.CTkFrame(middle_container, fg_color="transparent")
+        right_container.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
 
         # Advanced Options
-        self.setup_advanced_options()
+        self.setup_advanced_options_for_grid(right_container)
 
         # Download Path
-        self.setup_path_section()
+        self.setup_path_section_for_grid(right_container)
 
-        # Progress Section
+        # 4. Progress Section (Full Width)
         self.setup_progress_section()
 
-        # Download Button
+        # 5. Download Button (Full Width)
         self.setup_download_button()
 
-        # Log Section
+        # 6. Log Section (Full Width)
         self.setup_log_section()
 
     def setup_url_section(self):
@@ -378,7 +415,7 @@ class DownloadTab:
             border_width=2,
             border_color=config.UI_COLORS['border']
         )
-        url_frame.pack(fill="x", pady=(0, 20))
+        url_frame.pack(fill="x", pady=(0, 20), padx=20)
 
         # Header
         header = ctk.CTkFrame(url_frame, fg_color="transparent")
@@ -480,7 +517,7 @@ class DownloadTab:
             radiobutton_width=20,
             radiobutton_height=20
         )
-        radio.pack(side="left", padx=(0, 15))
+        radio.pack(side="left", padx=(0, 1))
 
         # Icon
         icon = ctk.CTkLabel(
@@ -640,7 +677,7 @@ class DownloadTab:
             border_width=2,
             border_color=config.UI_COLORS['border']
         )
-        progress_frame.pack(fill="x", pady=(0, 20))
+        progress_frame.pack(fill="x", pady=(0, 20), padx=20)
 
         # Header
         header = ctk.CTkFrame(progress_frame, fg_color="transparent")
@@ -686,7 +723,7 @@ class DownloadTab:
     def setup_download_button(self):
         """Setup download button"""
         button_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        button_frame.pack(fill="x", pady=(0, 20))
+        button_frame.pack(fill="x", pady=(0, 20), padx=80)
 
         self.download_btn = ctk.CTkButton(
             button_frame,
@@ -711,7 +748,7 @@ class DownloadTab:
             border_width=2,
             border_color=config.UI_COLORS['border']
         )
-        log_frame.pack(fill="both", expand=True)
+        log_frame.pack(fill="both", expand=True, padx=20)
 
         # Header
         header = ctk.CTkFrame(log_frame, fg_color="transparent")
@@ -951,6 +988,94 @@ class DownloadTab:
         """Load settings into tab"""
         self.download_path.set(settings.get('download_path', str(config.DEFAULT_DOWNLOAD_PATH)))
         self.quality_var.set(settings.get('default_quality', config.DEFAULT_QUALITY))
+
+    def setup_advanced_options_for_grid(self, parent):
+        """Setup advanced options for grid layout"""
+        advanced_frame = ctk.CTkFrame(
+            parent,
+            corner_radius=20,
+            border_width=2,
+            border_color=config.UI_COLORS['border']
+        )
+        advanced_frame.pack(fill="x", pady=(0, 20))
+
+        # Header
+        header = ctk.CTkFrame(advanced_frame, fg_color="transparent")
+        header.pack(fill="x", padx=20, pady=(20, 10))
+
+        icon = ctk.CTkLabel(header, text="🛠️", font=ctk.CTkFont(size=20))
+        icon.pack(side="left", padx=(0, 8))
+
+        label = ctk.CTkLabel(
+            header,
+            text="Advanced Options",
+            font=ctk.CTkFont(**config.FONTS['section_header'])
+        )
+        label.pack(side="left")
+
+        # Options
+        options_frame = ctk.CTkFrame(advanced_frame, fg_color="transparent")
+        options_frame.pack(fill="x", padx=20, pady=(0, 20))
+
+        # Create checkboxes
+        for option in config.ADVANCED_OPTIONS:
+            var = getattr(self, f"{option['key']}_var")
+            command = self.on_playlist_toggle if option['key'] == 'playlist' else None
+            self.create_advanced_option(options_frame, option, var, command)
+
+        # Playlist options widget
+        self.playlist_options = PlaylistOptionsWidget(options_frame)
+
+    def setup_path_section_for_grid(self, parent):
+        """Setup download path for grid layout"""
+        path_frame = ctk.CTkFrame(
+            parent,
+            corner_radius=20,
+            border_width=2,
+            border_color=config.UI_COLORS['border']
+        )
+        path_frame.pack(fill="x")
+
+        # Header
+        header = ctk.CTkFrame(path_frame, fg_color="transparent")
+        header.pack(fill="x", padx=20, pady=(20, 10))
+
+        icon = ctk.CTkLabel(header, text="📁", font=ctk.CTkFont(size=20))
+        icon.pack(side="left", padx=(0, 8))
+
+        label = ctk.CTkLabel(
+            header,
+            text="Download Location",
+            font=ctk.CTkFont(**config.FONTS['section_header'])
+        )
+        label.pack(side="left")
+
+        # Path input
+        input_frame = ctk.CTkFrame(path_frame, fg_color="transparent")
+        input_frame.pack(fill="x", padx=20, pady=(0, 20))
+
+        self.path_entry = ctk.CTkEntry(
+            input_frame,
+            textvariable=self.download_path,
+            font=ctk.CTkFont(**config.FONTS['text']),
+            height=45,
+            corner_radius=15,
+            border_width=2
+        )
+        self.path_entry.pack(side="left", fill="both", expand=True, padx=(0, 10))
+
+        browse_btn = ctk.CTkButton(
+            input_frame,
+            text="📂 Browse",
+            command=self.browse_folder,
+            width=120,
+            height=45,
+            corner_radius=15,
+            font=ctk.CTkFont(**config.FONTS['text'], weight="bold"),
+            fg_color=config.UI_COLORS['secondary'],
+            hover_color=["#455A64", "#37474F"]
+        )
+        browse_btn.pack(side="right")
 
 class HistoryTab:
     """Download history tab interface"""

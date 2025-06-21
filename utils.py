@@ -11,7 +11,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-import customtkinter as ctk 
+import customtkinter as ctk
 import config
 
 class SettingsManager:
@@ -462,25 +462,32 @@ def create_scrollable_frame(parent, **kwargs):
         container,
         highlightthickness=0,
         bg=bg_color,
-        bd=0
+        bd=0,
     )
 
     # Scrollbar
     scrollbar = ctk.CTkScrollbar(container, command=canvas.yview)
     canvas.configure(yscrollcommand=scrollbar.set)
 
-    # Scrollable frame inside canvas - use same bg color instead of transparent
+    # Scrollable frame inside canvas
     scrollable_frame = ctk.CTkFrame(canvas, fg_color=bg_color)
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-    )
+
+    # Configure canvas scrolling
+    def configure_scroll_region(event=None):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        # Make the frame fill the canvas width
+        canvas_width = canvas.winfo_width()
+        if canvas_width > 1:  # Avoid issues during initialization
+            canvas.itemconfig(canvas_window, width=canvas_width)
+
+    scrollable_frame.bind("<Configure>", configure_scroll_region)
+    canvas.bind("<Configure>", configure_scroll_region)
 
     # Add frame to canvas
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
     # Pack elements
-    canvas.pack(side="left", fill="both", expand=True, padx=(0, 5))
+    canvas.pack(side="left", fill="both", expand=True, padx=0, pady=0)
     scrollbar.pack(side="right", fill="y")
 
     # Bind mouse wheel events
@@ -496,5 +503,4 @@ def create_scrollable_frame(parent, **kwargs):
     canvas.bind('<Enter>', bind_mousewheel)
     canvas.bind('<Leave>', unbind_mousewheel)
 
-    # Return both container and scrollable frame
     return container, scrollable_frame
