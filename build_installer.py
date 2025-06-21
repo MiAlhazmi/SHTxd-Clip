@@ -59,6 +59,15 @@ def create_executable():
     """Create standalone executable with PyInstaller"""
     print("🔨 Building executable with PyInstaller...")
 
+    # Update yt-dlp before building
+    print("🔄 Updating yt-dlp before build...")
+    try:
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'yt-dlp'],
+                       check=True, capture_output=True)
+        print("✅ yt-dlp updated to latest version")
+    except subprocess.CalledProcessError:
+        print("⚠️ Failed to update yt-dlp, continuing with current version")
+
     # Find CustomTkinter installation path
     try:
         import customtkinter
@@ -66,6 +75,15 @@ def create_executable():
         print(f"📁 CustomTkinter path: {ctk_path}")
     except ImportError:
         print("❌ CustomTkinter not found!")
+        return False
+
+    # Find yt-dlp installation path for bundling
+    try:
+        import yt_dlp
+        ytdlp_path = os.path.dirname(yt_dlp.__file__)
+        print(f"📁 yt-dlp path: {ytdlp_path}")
+    except ImportError:
+        print("❌ yt-dlp not found!")
         return False
 
     # Set output to desktop
@@ -76,7 +94,7 @@ def create_executable():
     # Get current project directory
     project_dir = os.getcwd()
 
-    # PyInstaller command with CustomTkinter assets
+    # PyInstaller command with all assets
     cmd = [
         'pyinstaller',
         '--onefile',
@@ -89,8 +107,16 @@ def create_executable():
         '--hidden-import', 'requests',
         '--hidden-import', 'PIL',
         '--hidden-import', 'packaging',
+        '--hidden-import', 'yt_dlp',
+        '--hidden-import', 'websockets',
+        '--hidden-import', 'brotli',
+        '--hidden-import', 'mutagen',
         # Add CustomTkinter assets
         '--add-data', f'{ctk_path};customtkinter/',
+        # Bundle yt-dlp completely
+        '--add-data', f'{ytdlp_path};yt_dlp/',
+        # Include extractors
+        '--collect-all', 'yt_dlp',
     ]
 
     # Add FFmpeg if it exists
@@ -113,7 +139,7 @@ def create_executable():
     main_script = os.path.join(project_dir, 'main.py')
     cmd.append(main_script)
 
-    print(f"🔧 PyInstaller command: {' '.join(cmd[:8])}...")
+    print(f"🔧 Building with latest yt-dlp bundled...")
 
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)

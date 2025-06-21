@@ -1525,6 +1525,9 @@ class YouTubeDownloaderUI:
     def initialize_core(self):
         """Initialize core with startup tasks"""
         def startup_worker():
+            # Auto-update yt-dlp first
+            self.core.update_checker.auto_update_ytdlp_on_startup()
+
             # Check yt-dlp version
             self.core.check_ytdlp_version()
 
