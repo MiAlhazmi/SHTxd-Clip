@@ -39,20 +39,66 @@ def clean_build_dirs():
 
 def download_ffmpeg():
     """Download FFmpeg for bundling"""
-    print("📥 Downloading FFmpeg...")
+    print("📥 Checking for FFmpeg...")
 
-    # For now, we'll assume Windows. You can extend this for other platforms
+    # Check if FFmpeg already exists
+    if os.path.exists('ffmpeg.exe'):
+        print("✅ FFmpeg found!")
+        return True
+
+    # Auto-download FFmpeg for Windows
     if sys.platform == 'win32':
-        print("⏭️  Please manually download FFmpeg from:")
-        print("   https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip")
-        print("   Extract ffmpeg.exe to the project directory")
-        print("   Then re-run this script")
+        print("📥 Auto-downloading FFmpeg...")
+        try:
+            import requests
+            import zipfile
+            import tempfile
 
-        if not os.path.exists('ffmpeg.exe'):
-            print("❌ ffmpeg.exe not found in current directory")
+            # FFmpeg download URL
+            ffmpeg_url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+
+            # Download
+            print("📥 Downloading FFmpeg (this may take a moment)...")
+            response = requests.get(ffmpeg_url, stream=True)
+            response.raise_for_status()
+
+            # Save to temp file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    temp_file.write(chunk)
+                temp_zip_path = temp_file.name
+
+            # Extract ffmpeg.exe
+            print("📦 Extracting FFmpeg...")
+            with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+                # Find ffmpeg.exe in the zip
+                for file_info in zip_ref.infolist():
+                    if file_info.filename.endswith('bin/ffmpeg.exe'):
+                        # Extract just ffmpeg.exe to current directory
+                        file_info.filename = 'ffmpeg.exe'
+                        zip_ref.extract(file_info, '.')
+                        break
+
+            # Clean up temp file
+            os.unlink(temp_zip_path)
+
+            if os.path.exists('ffmpeg.exe'):
+                print("✅ FFmpeg downloaded successfully!")
+                return True
+            else:
+                print("❌ Failed to extract ffmpeg.exe")
+                return False
+
+        except Exception as e:
+            print(f"❌ Failed to auto-download FFmpeg: {e}")
+            print("⏭️ Please manually download FFmpeg from:")
+            print(
+                "   https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip")
+            print("   Extract ffmpeg.exe to the project directory")
             return False
-
-    return True
+    else:
+        print("⏭️ Please manually install FFmpeg for your platform")
+        return False
 
 
 def create_executable():
