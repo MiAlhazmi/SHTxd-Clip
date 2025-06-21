@@ -1,5 +1,5 @@
 """
-Core functionality for YouTube Downloader Pro
+Core functionality for SHTxd Clip
 Handles all download logic, playlist processing, and yt-dlp integration
 """
 

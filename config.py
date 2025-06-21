@@ -1,5 +1,5 @@
 """
-Configuration file for YouTube Downloader Pro
+Configuration file for SHTxd Clip
 Contains all constants, settings, and configuration data
 """
 
@@ -7,9 +7,11 @@ from pathlib import Path
 import re
 
 # Application Info
-APP_NAME = "YouTube Downloader Pro"
+APP_NAME = "SHTxd Clip"
 APP_VERSION = "1.0.0"
-APP_AUTHOR = "YouTube Downloader Pro Team"
+GITHUB_REPO = "mialhazmi/shtxd-clip"  # Your repo
+UPDATE_CHECK_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
+APP_AUTHOR = "ShortaXD"
 
 # Window Configuration
 DEFAULT_WINDOW_SIZE = "900x750"
@@ -137,7 +139,7 @@ TIMEOUTS = {
 
 # Log Messages
 LOG_MESSAGES = {
-    'app_ready': "🎬 YouTube Downloader Pro ready! Paste a URL and click Preview to get started.",
+    'app_ready': "🎬 SHTxd Clip ready! Paste a URL and click Preview to get started.",
     'ui_loaded': "✨ Enhanced UI loaded successfully!",
     'download_start': "🚀 Starting download...",
     'download_complete': "✅ Download completed successfully!",

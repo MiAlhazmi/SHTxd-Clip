@@ -1,4 +1,4 @@
-# YouTube Downloader Pro
+# SHTxd Clip
 
 A modern, feature-rich YouTube video downloader with a beautiful GUI built using Python and CustomTkinter.
 

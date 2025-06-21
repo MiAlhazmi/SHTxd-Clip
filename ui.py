@@ -1,5 +1,5 @@
 """
-User Interface for YouTube Downloader Pro
+User Interface for SHTxd Clip
 Contains all GUI components and layouts using CustomTkinter
 """
 
@@ -333,7 +333,7 @@ class DownloadTab:
 
         title_label = ctk.CTkLabel(
             title_frame,
-            text="🎬 YouTube Downloader Pro",
+            text="🎬 SHTxd Clip",
             font=ctk.CTkFont(**config.FONTS['title']),
             text_color=config.UI_COLORS['primary']
         )

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# YouTube Downloader Pro - Setup Script
+# SHTxd Clip - Setup Script
 
-echo "🎬 YouTube Downloader Pro - Setup"
+echo "🎬 SHTxd Clip - Setup"
 echo "=================================="
 
 # Check if Python 3 is available
@@ -55,7 +55,7 @@ fi
 echo ""
 echo "🎉 Setup complete!"
 echo ""
-echo "To run YouTube Downloader Pro:"
+echo "To run SHTxd Clip:"
 echo "1. source venv/bin/activate"
 echo "2. python3 main.py"
 echo ""

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-YouTube Downloader Pro - Main Entry Point
+SHTxd Clip - Main Entry Point
 A modern, feature-rich YouTube video downloader with GUI
 """
 

@@ -1,5 +1,5 @@
 """
-Utility functions for YouTube Downloader Pro
+Utility functions for SHTxd Clip
 Handles settings, history, validation, and other helper functions
 """
 

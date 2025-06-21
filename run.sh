@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# YouTube Downloader Pro - Run Script
+# SHTxd Clip - Run Script
 
-echo "🎬 Starting YouTube Downloader Pro..."
+echo "🎬 Starting SHTxd Clip..."
 
 # Check if virtual environment exists
 if [ ! -d "venv" ]; then
