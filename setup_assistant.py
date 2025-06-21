@@ -360,17 +360,6 @@ class SetupDialog:
                 font=ctk.CTkFont(size=11)
             )
             copy_btn.pack(side="left", padx=(0, 10))
-            
-            powershell_btn = ctk.CTkButton(
-                button_frame,
-                text="⚡ Open PowerShell",
-                command=self.open_powershell,
-                width=140,
-                height=35,
-                font=ctk.CTkFont(size=11),
-                fg_color=config.UI_COLORS['secondary']
-            )
-            powershell_btn.pack(side="left")
     
     def create_action_buttons(self, parent):
         """Create action buttons"""
